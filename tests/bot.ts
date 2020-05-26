@@ -24,15 +24,18 @@ for await (const ctx of client) {
   if (typeof ctx === "string") {
     switch (ctx) {
       case "ready":
-        console.log("ready");
+        {
+          console.log("ready");
 
-        client.updatePresence({
-          status: "online",
-          game: {
-            name: "!ping",
-            type: PrecenseTypes.LISTENING,
-          },
-        });
+          client.updatePresence({
+            status: "online",
+            game: {
+              name: "!ping",
+              type: PrecenseTypes.LISTENING,
+            },
+          });
+        }
+        break;
       default:
         break;
     }
