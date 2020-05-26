@@ -14,7 +14,7 @@ export class Client {
 
   private async *[Symbol.asyncIterator]() {
     for await (const payload of this.ws.queue) {
-      if(typeof payload === "string"){
+      if (typeof payload === "string") {
         yield payload;
         continue;
       }

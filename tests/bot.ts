@@ -21,11 +21,11 @@ console.log(`Running cordeno v${client.version}`);
 // });
 
 for await (const ctx of client) {
-  if(typeof ctx === "string"){
-    switch(ctx){
+  if (typeof ctx === "string") {
+    switch (ctx) {
       case "ready":
         console.log("ready");
-  
+
         client.updatePresence({
           status: "online",
           game: {
@@ -40,19 +40,21 @@ for await (const ctx of client) {
     continue;
   }
 
-  switch(ctx.event){
-    case "MESSAGE_CREATE": {
-      const msg: Message = ctx;
-      console.log(msg.member.roles);
+  switch (ctx.event) {
+    case "MESSAGE_CREATE":
+      {
+        const msg: Message = ctx;
+        console.log(msg.member.roles);
 
-      if (msg.author.id !== client.user.id) {
-        if (msg.content === "!ping") {
-          msg.reply("Pong!", {
-            ping: true,
-          });
+        if (msg.author.id !== client.user.id) {
+          if (msg.content === "!ping") {
+            msg.reply("Pong!", {
+              ping: true,
+            });
+          }
         }
       }
-    } break;
+      break;
     default:
       break;
   }
