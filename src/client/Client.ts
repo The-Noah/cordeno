@@ -4,8 +4,10 @@ import { ReqHandler } from "./rest/ReqHandler.ts";
 import { Message } from "./constructors/Message.ts";
 import { ClientInfo } from "./constructors/ClientInfo.ts";
 import { ClientEvent } from "./constructors/ClientEvent.ts";
+import { Presence } from "./interfaces/discord.ts";
+import { EventEmitter } from "../../deps.ts";
 
-export class Client {
+export class Client extends EventEmitter {
   private ws: WebSocketManager = new WebSocketManager(this);
   http: ReqHandler;
   options!: CordenoOptions;
@@ -23,10 +25,15 @@ export class Client {
   }
 
   constructor(options: CordenoOptions) {
+    super();
+
     this.options = options;
     if (!options.token) {
       throw new Error("A token must be specified when initiating `Client`");
     }
+
+    this.ws.on("ready", () => this.emit("ready"));
+
     this.ws.connect();
     this.http = new ReqHandler(options.token);
     this.user = new ClientInfo(this);
@@ -34,5 +41,9 @@ export class Client {
 
   get version(): string {
     return Cordeno.Version;
+  }
+
+  async updatePresence(precense: Presence) {
+    this.ws.presenceUpdate(precense);
   }
 }

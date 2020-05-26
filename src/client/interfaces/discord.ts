@@ -172,3 +172,20 @@ export interface MessageReference {
   channel_id: string;
   guild_id?: string;
 }
+
+export enum PrecenseTypes {
+  GAME = 0,
+  STREAMING = 1,
+  LISTENING = 2,
+}
+
+// https://discord.com/developers/docs/topics/gateway#update-status
+export interface Presence {
+  since?: number;
+  game?: {
+    name: string;
+    type: PrecenseTypes;
+    url?: string;
+  };
+  status: "online" | "dnd" | "idle" | "invisible" | "offline";
+}

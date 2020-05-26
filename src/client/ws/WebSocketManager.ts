@@ -1,17 +1,21 @@
-import { connectWebSocket, WebSocket } from "../../../deps.ts";
+import { connectWebSocket, WebSocket, EventEmitter } from "../../../deps.ts";
 import { Discord, Payload, OPCODE } from "../constant/discord.ts";
 import { Cordeno } from "../constant/cordeno.ts";
 import { Client } from "../Client.ts";
 import { AsyncEventQueue } from "../Queue.ts";
+import { Presence } from "../interfaces/discord.ts";
 
-export class WebSocketManager {
+export class WebSocketManager extends EventEmitter {
   private socket!: WebSocket;
   private beatInterval!: number;
   private beatRecieved: boolean = true;
   public queue!: AsyncEventQueue<Payload>;
+
   constructor(private client: Client) {
+    super();
     this.queue = new AsyncEventQueue();
   }
+
   async connect() {
     this.socket = await connectWebSocket(Discord.Endpoint);
     for await (const msg of this.socket) {
@@ -22,6 +26,7 @@ export class WebSocketManager {
           case OPCODE.Hello: {
             this.identify();
             this.heartbeatInterval(payload.d.heartbeat_interval);
+            this.emit("ready");
             break;
           }
           case OPCODE.HeartbeatACK: {
@@ -66,5 +71,12 @@ export class WebSocketManager {
   }
   async panic() {
     //Reconnection code here
+  }
+
+  async presenceUpdate(precense: Presence) {
+    this.socket.send(JSON.stringify({
+      op: OPCODE.PresenceUpdate,
+      d: { ...precense, since: null, afk: false },
+    }));
   }
 }

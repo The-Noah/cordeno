@@ -1,4 +1,4 @@
-import { Client, Message } from "../mod.ts";
+import { Client, Message, PrecenseTypes } from "../mod.ts";
 import * as dotenv from "https://deno.land/x/denoenv/mod.ts";
 const env = dotenv.config();
 
@@ -7,6 +7,18 @@ const client = new Client({
 });
 
 console.log(`Running cordeno v${client.version}`);
+
+client.on("ready", () => {
+  console.log("ready");
+
+  client.updatePresence({
+    status: "online",
+    game: {
+      name: "!ping",
+      type: PrecenseTypes.LISTENING,
+    },
+  });
+});
 
 for await (const ctx of client) {
   if (ctx.event === "MESSAGE_CREATE") {
