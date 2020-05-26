@@ -5,9 +5,8 @@ import { Message } from "./constructors/Message.ts";
 import { ClientInfo } from "./constructors/ClientInfo.ts";
 import { ClientEvent } from "./constructors/ClientEvent.ts";
 import { Presence } from "./interfaces/discord.ts";
-import { EventEmitter } from "../../deps.ts";
 
-export class Client extends EventEmitter {
+export class Client {
   private ws: WebSocketManager = new WebSocketManager(this);
   http: ReqHandler;
   options!: CordenoOptions;
@@ -15,24 +14,26 @@ export class Client extends EventEmitter {
 
   private async *[Symbol.asyncIterator]() {
     for await (const payload of this.ws.queue) {
+      if(typeof payload === "string"){
+        yield payload;
+        continue;
+      }
+
       switch (payload.t) {
-        case "MESSAGE_CREATE": {
+        case "MESSAGE_CREATE":
           yield ClientEvent(new Message(this, payload));
           break;
-        }
+        default:
+          break;
       }
     }
   }
 
   constructor(options: CordenoOptions) {
-    super();
-
     this.options = options;
     if (!options.token) {
       throw new Error("A token must be specified when initiating `Client`");
     }
-
-    this.ws.on("ready", () => this.emit("ready"));
 
     this.ws.connect();
     this.http = new ReqHandler(options.token);
